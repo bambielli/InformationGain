@@ -96,6 +96,7 @@ class InformationGain:
 # See https://www.youtube.com/watch?time_continue=1&v=VvXzh-CHCc8 for answer and calculations.
 # Note that calculations in the answer above are using a shortcut for calculating entropy that is applicable when there
 # are 2 goal states. This code will work for more than 1 goal state.
+
 attributes = {"Outlook": [(2, 3), (4, 0), (3, 2)], "Temp": [(2, 2), (4, 2), (3, 1)], "Humidity": [(3, 4), (6, 1)], "Wind": [(6, 2), (3, 3)]}
 ec = EntropyCalculator(attributes)
 
