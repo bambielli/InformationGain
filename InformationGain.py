@@ -39,7 +39,7 @@ def construct_total_tuple(values):
     # e.g. zip(*[(0, 1, 1) (1, 2, 1) (0, 2, 3)]) --> [(0, 1, 0) (1, 2, 2) (1, 1, 3)]
     return tuple(map(sum, zip(*values)))
 
-class EntropyCalculator:
+class InformationGain:
 
     def __init__(self, attributes):
         """
