@@ -98,6 +98,6 @@ class InformationGain:
 # are 2 goal states. This code will work for more than 1 goal state.
 
 attributes = {"Outlook": [(2, 3), (4, 0), (3, 2)], "Temp": [(2, 2), (4, 2), (3, 1)], "Humidity": [(3, 4), (6, 1)], "Wind": [(6, 2), (3, 3)]}
-ec = EntropyCalculator(attributes)
+ig = InformationGain(attributes)
 
-print ec.gains()
+print ig.gains()
