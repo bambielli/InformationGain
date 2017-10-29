@@ -58,7 +58,7 @@ class InformationGain:
         self.total_tuple = construct_total_tuple(vals)
         self.total_entries = total(self.total_tuple)
 
-    def __remainder(self, branches):
+    def __entropy_remainder(self, branches):
         """
         Calculates the entropy remainder from each branch.
 
@@ -73,10 +73,11 @@ class InformationGain:
         for branch in branches:
             rem = [(float(value) / self.total_entries) * entropy(branch) for value in branch]
             full_remainder += sum(rem)
+        print "fullremainder is: {0}".format(full_remainder)
         return full_remainder
 
 
-    def gains(self):
+    def entropy_gain(self):
         """
         return the total amount of information gain for each attribute in the calculator
         Also referred to the toal reduction in entropy.
@@ -87,17 +88,76 @@ class InformationGain:
         """
         return_dict = {}
         total_e = entropy(self.total_tuple)
+        print total_e
         for k, v in self.attributes.items():
-            rem = self.__remainder(v)
+            rem = self.__entropy_remainder(v)
             return_dict[k] = total_e - rem
         return return_dict
+
+    def gini_impurity(self, class_vector):
+        """Compute the gini impurity for a list of classes.
+        This is a measure of how often a randomly chosen element
+        drawn from the class_vector would be incorrectly labeled
+        if it was randomly labeled according to the distribution
+        of the labels in the class_vector.
+        It reaches its minimum at zero when all elements of class_vector
+        belong to the same class.
+
+        Args:
+            class_vector (list(int)): Vector of classes given as 0 or 1.
+
+        Returns:
+            Floating point number representing the gini impurity.
+        """
+        classes = dict()
+        for val in class_vector:
+            if not classes.has_key(val):
+                classes[val] = 1
+            else:
+                classes[val] += 1
+        impurity = 0
+        for k, v in classes.iteritems():
+            positive = float(v) / len(class_vector)
+            negative = 1 - positive
+            impurity += (positive * negative)
+
+        return impurity
+
+
+    def gini_gain(self, previous_classes, current_classes):
+        """Compute the gini impurity gain between the previous and current classes.
+        Args:
+            previous_classes (list(int)): Vector of classes given as 0 or 1.
+            current_classes (list(list(int): A list of lists where each list has
+                0 and 1 values).
+        Returns:
+            Floating point number representing the information gain.
+        """
+        total_impurity = self.gini_impurity(previous_classes)
+        total_remainder = 0
+        for branch in current_classes:
+            gi_branch = self.gini_impurity(branch)
+            # weighted sum of gini_impurity for each branch
+            total_remainder += gi_branch * (len(branch) / len(previous_classes))
+
+        return total_impurity - total_remainder
 
 # See https://www.youtube.com/watch?time_continue=1&v=FgUaM-98LDI for example data table.
 # See https://www.youtube.com/watch?time_continue=1&v=VvXzh-CHCc8 for answer and calculations.
 # Note that calculations in the answer above are using a shortcut for calculating entropy that is applicable when there
 # are 2 goal states. This code will work for more than 1 goal state.
 
-attributes = {"Outlook": [(2, 3), (4, 0), (3, 2)], "Temp": [(2, 2), (4, 2), (3, 1)], "Humidity": [(3, 4), (6, 1)], "Wind": [(6, 2), (3, 3)]}
+attributes = {"A1": [(3, 2), (0, 3)], "A2": [(1, 3), (2, 2)], "A3": [(1, 3), (2, 2)], "A4": [(2, 2), (1, 3)]}
+previous_classes = [0, 0, 0, 1, 1, 1, 1, 1]
+current_classes_a1 = [[0, 0, 0, 1, 1], [1, 1, 1]]
+current_classes_a2 = [[0, 1, 1, 1], [0, 0, 1, 1]]
+current_classes_a3 = [[0, 1, 1, 1], [0, 0, 1, 1]]
+current_classes_a4 = [[0, 0, 1, 1], [0, 1, 1, 1]]
+
+
 ig = InformationGain(attributes)
 
-print ig.gains()
+gini_impurity_gain = {"A1": ig.gini_gain(previous_classes, current_classes_a1), "A2": ig.gini_gain(previous_classes, current_classes_a2), "A3": ig.gini_gain(previous_classes, current_classes_a3), "A4": ig.gini_gain(previous_classes, current_classes_a4)}
+
+print "entropy gain is: {0}".format(ig.entropy_gain())
+print "impurity gain is: {0}".format(gini_impurity_gain)
